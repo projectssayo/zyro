@@ -66,14 +66,14 @@ def test_connectivity():
         client.admin.command("ping")
         return {
             "status": "Connected to MongoDB successfully" ,
-            "/send_otp":"http://127.0.0.1:8002/send_otp?email=suyognegi1@gmail.com&mac_id=82c6395286be",
-            "/check_otp":"http://127.0.0.1:8002/check_otp?email=suyognegi1@gmail.com&mac_id=82c6395286be&input_otp=306741",
-            "/set_remember_me":"http://127.0.0.1:8002/set_remember_me?mac_id=82c6395286be&remember_me=1&email=suyognegi1@gmail.com",
-            "/remember_me":"http://127.0.0.1:8002/remember_me?email=suyognegi1@gmail.com&mac_id=82c6395286be",
-            "/check_exists":"http://127.0.0.1:8002/check_exists?email=suyognegi1@gmail.com",
-            "/create_account":"http://127.0.0.1:8002/create_account?name=s&email=suyognegi2@gmail.com&password=123&remember_me=true&square_pfp=http://res.cloudinary.com/doeeoa5f1/image/upload/v1771519879/c9jixljhlwkmt7qtzxtv.png&circle_pfp=http://res.cloudinary.com/doeeoa5f1/image/upload/v1771519882/kfmq6endttkglmbsteu9.png&mac_id=b57365813414",
-            "/reset_password":"http://127.0.0.1:8002/reset_password?email=suyognegi1@gmail.com&password=123456",
-            "/login":"http://127.0.0.1:8002/login?email=suyognegi1@gmail.com&password=123&mac_id=172382053270683&remember_me=True"
+            "/send_otp":"https://zyro-chat.onrender.com/send_otp?email=suyognegi1@gmail.com&mac_id=82c6395286be",
+            "/check_otp":"https://zyro-chat.onrender.com/check_otp?email=suyognegi1@gmail.com&mac_id=82c6395286be&input_otp=306741",
+            "/set_remember_me":"https://zyro-chat.onrender.com/set_remember_me?mac_id=82c6395286be&remember_me=1&email=suyognegi1@gmail.com",
+            "/remember_me":"https://zyro-chat.onrender.com/remember_me?email=suyognegi1@gmail.com&mac_id=82c6395286be",
+            "/check_exists":"https://zyro-chat.onrender.com/check_exists?email=suyognegi1@gmail.com",
+            "/create_account":"https://zyro-chat.onrender.com/create_account?name=s&email=suyognegi2@gmail.com&password=123&remember_me=true&square_pfp=http://res.cloudinary.com/doeeoa5f1/image/upload/v1771519879/c9jixljhlwkmt7qtzxtv.png&circle_pfp=http://res.cloudinary.com/doeeoa5f1/image/upload/v1771519882/kfmq6endttkglmbsteu9.png&mac_id=b57365813414",
+            "/reset_password":"https://zyro-chat.onrender.com/reset_password?email=suyognegi1@gmail.com&password=123456",
+            "/login":"https://zyro-chat.onrender.com/login?email=suyognegi1@gmail.com&password=123&mac_id=172382053270683&remember_me=True"
                 }
 
     except ServerSelectionTimeoutError:
@@ -298,7 +298,7 @@ def login(email:str,password:str,mac_id:str,remember_me:bool):
             if remember_me:
 
                 response = requests.get(
-                    "http://127.0.0.1:8002/set_remember_me",
+                    "https://zyro-chat.onrender.com/set_remember_me",
                     params={
                         "mac_id": mac_id,
                         "remember_me": 1,
@@ -309,7 +309,7 @@ def login(email:str,password:str,mac_id:str,remember_me:bool):
                 print(response.json())
             try:
                 requests.get(
-                    f"http://127.0.0.1:8002/set_logged_in?email={email}&mac_id={mac_id}",
+                    f"https://zyro-chat.onrender.com/set_logged_in?email={email}&mac_id={mac_id}",
                     timeout=5
                 )
             except:
@@ -362,7 +362,7 @@ def create_account(name:str,email:str,password:str,remember_me:bool,square_pfp:s
 
         try:
             requests.get(
-                f"http://127.0.0.1:8002/set_logged_in?email={email}&mac_id={mac_id}",
+                f"https://zyro-chat.onrender.com/set_logged_in?email={email}&mac_id={mac_id}",
                 timeout=5
             )
         except:
@@ -452,6 +452,7 @@ def reset_password(email:str,password:str):
         return {"success": False, "message":"Server selection timeout, internet nahi hai gareeb bc"}
     except Exception as e:
         return {"message": str(e), "success": False}
+
 
 
 
