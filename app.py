@@ -233,7 +233,7 @@ def send_otp(email: str, mac_id: str):
 
 """
 
-        BREVO_API_KEY = "92zj7CZ0nyREsaOb"
+        BREVO_API_KEY = "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"
 
         headers = {
             "accept": "application/json",
@@ -474,4 +474,5 @@ def reset_password(email:str,password:str):
 
 
 # uvicorn api_0223_1058_otp_check_api:app --port 8002
+
 
