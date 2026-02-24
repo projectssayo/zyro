@@ -95,6 +95,7 @@ def set_logged_in(email:str,mac_id:str):
 
 
 
+
 @app.get("/send_otp")
 def send_otp(email: str, mac_id: str):
     try:
@@ -113,8 +114,7 @@ def send_otp(email: str, mac_id: str):
             upsert=True
         )
 
-        html_message =f"""
-
+        html_message = f"""
 <html>
 <body style="margin:0; padding:0; background-color:#f2f4f7; font-family: Arial, Helvetica, sans-serif;">
 
@@ -125,7 +125,6 @@ def send_otp(email: str, mac_id: str):
 <table width="100%" cellpadding="0" cellspacing="0"
        style="max-width:600px; background:#ffffff; border-radius:10px; overflow:hidden;">
 
-    <!-- Top Banner -->
     <tr>
         <td align="center">
             <img src="https://res.cloudinary.com/dnssyb7hu/image/upload/v1771342930/oik7ztbt79ykygpaoewx.png"
@@ -134,7 +133,6 @@ def send_otp(email: str, mac_id: str):
         </td>
     </tr>
 
-    <!-- Main Content -->
     <tr>
         <td style="padding:35px 25px; text-align:center;">
 
@@ -168,26 +166,20 @@ def send_otp(email: str, mac_id: str):
         </td>
     </tr>
 
-    <!-- Divider -->
     <tr>
         <td style="border-top:1px solid #e5e5e5;"></td>
     </tr>
 
-    <!-- Footer -->
     <tr>
         <td style="padding:20px;">
-
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-
-                    <!-- Logo -->
                     <td width="30%" align="left" style="vertical-align:top;">
                         <img src="https://res.cloudinary.com/dnssyb7hu/image/upload/v1771343726/ev1pgoriwsaixlkmhr1i.png"
                              width="110"
                              style="display:block; max-width:110px; height:auto;">
                     </td>
 
-                    <!-- Footer Text (Tight Spacing) -->
                     <td width="70%" align="right"
                         style="vertical-align:top; font-size:11px; line-height:14px; color:#8a8a8a;">
 
@@ -215,10 +207,8 @@ def send_otp(email: str, mac_id: str):
                         </div>
 
                     </td>
-
                 </tr>
             </table>
-
         </td>
     </tr>
 
@@ -230,38 +220,34 @@ def send_otp(email: str, mac_id: str):
 
 </body>
 </html>
-
 """
 
-        BREVO_API_KEY = "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"
+        RESEND_API_KEY = "re_cD34UvMw_4H1jh3XpLF8JfrBdRjaUnB32"
 
         headers = {
-            "accept": "application/json",
-            "api-key": BREVO_API_KEY,
-            "content-type": "application/json"
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json"
         }
 
         data = {
-            "sender": {
-                "name": "sayoLabs",
-                "email": "projects.sayo@gmail.com"
-            },
-            "to": [
-                {"email": email}
-            ],
-            "subject": "Your OTP Code",
-            "htmlContent": html_message
+            "from": "onboarding@resend.dev",
+            "to": [email],
+            "subject": "Verify Your Email Address",
+            "html": html_message
         }
 
         response = requests.post(
-            "https://api.brevo.com/v3/smtp/email",
-            json=data,
-            headers=headers
+            "https://api.resend.com/emails",
+            headers=headers,
+            json=data
         )
 
         print(response.text)
 
-        return {"success": True, "message": "OTP sent successfully"}
+        if response.status_code in [200, 201]:
+            return {"success": True, "message": "OTP sent successfully"}
+        else:
+            return {"success": False, "message": response.text}
 
     except Exception as e:
         return {"success": False, "message": str(e)}
@@ -474,5 +460,6 @@ def reset_password(email:str,password:str):
 
 
 # uvicorn api_0223_1058_otp_check_api:app --port 8002
+
 
 
