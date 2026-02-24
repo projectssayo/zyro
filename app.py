@@ -1,7 +1,3 @@
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
 from fastapi import FastAPI
 
 from pymongo import MongoClient
@@ -100,20 +96,22 @@ def set_logged_in(email:str,mac_id:str):
 
 
 @app.get("/send_otp")
-def send_otp(email : str, mac_id : str):
+def send_otp(email: str, mac_id: str):
     try:
-        otp=random.randint(100_000,999_999)
+        otp = random.randint(100_000, 999_999)
 
-        data = {"_id" : email,"otp" : otp,"mac_id" : mac_id,"sent_at" : datetime.datetime.now()}
+        data_db = {
+            "_id": email,
+            "otp": otp,
+            "mac_id": mac_id,
+            "sent_at": datetime.datetime.now()
+        }
 
         otp_table.update_one(
             {"_id": email},
-            {"$set": data},
+            {"$set": data_db},
             upsert=True
         )
-        print(data)
-        sender_email = "projects.sayo@gmail.com"
-        sender_password = "qwkt wfrd mmon soeg"
 
         html_message =f"""
 
@@ -235,22 +233,38 @@ def send_otp(email : str, mac_id : str):
 
 """
 
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = "Your OTP Code"
-        msg["From"] = sender_email
-        msg["To"] = email
-        msg.attach(MIMEText(html_message, "html"))
+        BREVO_API_KEY = "92zj7CZ0nyREsaOb"
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email,sender_password)
-            server.send_message(msg)
+        headers = {
+            "accept": "application/json",
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json"
+        }
 
-        return {"message": "OTP sent successfully", "success" : True}
-    except ServerSelectionTimeoutError:
-        return {"success": False, "message": "Server selection timeout, internet nahi hai gareeb bc"}
+        data = {
+            "sender": {
+                "name": "sayoLabs",
+                "email": "projects.sayo@gmail.com"
+            },
+            "to": [
+                {"email": email}
+            ],
+            "subject": "Your OTP Code",
+            "htmlContent": html_message
+        }
+
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            json=data,
+            headers=headers
+        )
+
+        print(response.text)
+
+        return {"success": True, "message": "OTP sent successfully"}
+
     except Exception as e:
-        return {"message": str(e), "success": False}
-
+        return {"success": False, "message": str(e)}
 
 
 
@@ -460,3 +474,4 @@ def reset_password(email:str,password:str):
 
 
 # uvicorn api_0223_1058_otp_check_api:app --port 8002
+
