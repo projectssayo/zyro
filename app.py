@@ -99,18 +99,18 @@ def set_logged_in(email:str,mac_id:str):
 @app.get("/send_otp")
 def send_otp(email: str, mac_id: str):
     try:
-        otp = random.randint(100_000, 999_999)
+        otp = random.randint(100000, 999999)
 
-        data_db = {
+        otp_data = {
             "_id": email,
             "otp": otp,
             "mac_id": mac_id,
-            "sent_at": datetime.datetime.now()
+            "sent_at": datetime.datetime.utcnow()
         }
 
         otp_table.update_one(
             {"_id": email},
-            {"$set": data_db},
+            {"$set": otp_data},
             upsert=True
         )
 
@@ -222,36 +222,39 @@ def send_otp(email: str, mac_id: str):
 </html>
 """
 
-        RESEND_API_KEY = "re_cD34UvMw_4H1jh3XpLF8JfrBdRjaUnB32"
-
-        headers = {
-            "Authorization": f"Bearer {RESEND_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        data = {
-            "from": "onboarding@resend.dev",
-            "to": [email],
-            "subject": "Verify Your Email Address",
-            "html": html_message
-        }
+        MAILJET_API_KEY = "df77421052874f317c7c42efe1b2385d"
+        MAILJET_SECRET_KEY = "c9e31a6e323b6a734057311e1432f782"
 
         response = requests.post(
-            "https://api.resend.com/emails",
-            headers=headers,
-            json=data
+            "https://api.mailjet.com/v3.1/send",
+            auth=(MAILJET_API_KEY, MAILJET_SECRET_KEY),
+            json={
+                "Messages": [
+                    {
+                        "From": {
+                            "Email": "your_verified_sender@mailjet.com",
+                            "Name": "SayoLabs"
+                        },
+                        "To": [
+                            {
+                                "Email": email,
+                                "Name": "User"
+                            }
+                        ],
+                        "Subject": "Verify Your Email Address",
+                        "HTMLPart": html_message
+                    }
+                ]
+            }
         )
 
-        print(response.text)
-
-        if response.status_code in [200, 201]:
+        if response.status_code == 200:
             return {"success": True, "message": "OTP sent successfully"}
         else:
             return {"success": False, "message": response.text}
 
     except Exception as e:
         return {"success": False, "message": str(e)}
-
 
 
 @app.get("/check_otp")
@@ -460,6 +463,7 @@ def reset_password(email:str,password:str):
 
 
 # uvicorn api_0223_1058_otp_check_api:app --port 8002
+
 
 
 
